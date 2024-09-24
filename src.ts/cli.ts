@@ -3,7 +3,7 @@ import { camelCase } from "change-case";
 import { Magisat } from "./magisat";
 
 export async function callAPI(command, data, options = {}) {
-  const client = new Magisat(options);
+  const client = new Magisat();
 
   const camelCommand = camelCase(command);
   console.log(`${camelCommand}(${data})`);
