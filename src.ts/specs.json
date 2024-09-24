@@ -1,0 +1,3781 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+      "title": "API Docs | Magisat Rare Sats",
+      "description": "The API for the Magisat project (https://api.magisat.io/).\n\nTo request an API key, please apply [here](https://docs.google.com/forms/d/1t2ONUxBKnxn5J2I9L-6vvMjE_CGlXdj_VRjkUBjmbUE/viewform?edit_requested=true).\n",
+      "version": "1.5.0",
+      "x-logo": {
+        "url": "https://www.mbntech.ro/wp-content/logo_magisat-06.png",
+        "altText": "Magisat Logo",
+        "href": "https://magisat.io"
+      }
+    },
+    "servers": [
+      {
+        "url": "https://api.magisat.io",
+        "description": "Magisat api"
+      }
+    ],
+    "tags": [
+      {
+        "name": "Models",
+        "x-displayName": "General information",
+        "description": "### What is a prepared UTXO?\n\nAny Unspent Transaction Output, containing no special sats, and less than 1,000 sats overall - is called a Prepared UTXO.\n\nPrepared UTXOs are used as placeholders to allow other outputs to reach a certain index in the transaction. This procesure ensures the __end-to-end trustless UTXO-exchange__ functionality.\n\n### What are Spendables UTXOs?\n\nSpendables UTXOs are the UTXOs that contain **ONLY** the followings type of rare-sats (just from the list): Palindrome, Sequence Pali, Alpha & Omega. We will make announcements when new types of rare-sats are added to the list.\n\n#### Why are they used and in which conditions? \n\nThey are used in case the wallet you made the request for has not enough common utxos for payment when creating prepareds or making a buy. If the user has no problems with using spendables as payment, the spendables won't be used if the wallet has enough commons. Spendables are used **only if needed**.\n\nYou can decide in each request by changing the param `overrideDisableSpendables`. The default is false, case in which spendables can be used. Set to true if you don't want to use the spendables as payment even if wallet has not enough commons for payment.\n\n### Legacy API endpoints\n\nWe will continue to provide updates and support for the endpoints marked as __Legacy__, so your existing code will not break. However, in an effort to bring all the endpoints to a healthy level of standardization and consistency, please consider migrating to the non-legacy endpoints.\n\nAPI 2.0.0 will mark the discontinuation of the Legacy endpoints.\n"
+      },
+      {
+        "name": "Tags"
+      },
+      {
+        "name": "Listing"
+      },
+      {
+        "name": "Buying"
+      },
+      {
+        "name": "Offer"
+      },
+      {
+        "name": "Runes"
+      }
+    ],
+    "paths": {
+      "/external/v1/tag": {
+        "get": {
+          "tags": [
+            "Tags"
+          ],
+          "description": "Get list of available tags ordered by priority.",
+          "operationId": "getTags",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "isCategory",
+              "in": "query",
+              "description": "Filter tags by column isCategory. By not specifying this param, the endpoint will return all tags. To get only tags that are categories set the param to one of the values \"true\" or \"1\". If you specify any other value the endpoint will return non-category tags.",
+              "required": false,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "true",
+                  "1",
+                  "false",
+                  "0"
+                ]
+              }
+            },
+            {
+              "name": "beforeTime",
+              "in": "query",
+              "description": "Changes totalVolume and beforeFloorPrice key values for tags. By not specifing this param, or setting the ALL value will not use any time frame for total volume and set beforeFloorPrice to null.",
+              "required": false,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "1h",
+                  "24h",
+                  "7d",
+                  "30d",
+                  "ALL"
+                ]
+              }
+            },
+            {
+              "name": "includeIsVirtual",
+              "in": "query",
+              "description": "Optional, set to true or 1 to receive ordinal collections alongside rare-sats tags.",
+              "required": false,
+              "explode": true,
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "true",
+                  "1"
+                ]
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Tags requested.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TagsResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/tag/history": {
+        "get": {
+          "tags": [
+            "Tags"
+          ],
+          "description": "Get paginated history of floor prices for a given tag.",
+          "operationId": "getTagFloorPriceHistory",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "tagId",
+              "in": "query",
+              "description": "The tag id to get the floor price history.",
+              "required": true,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            {
+              "name": "offset",
+              "in": "query",
+              "description": "Start offset to get history. Used for pagination",
+              "required": true,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "number"
+              }
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "description": "Number of history to get. Used for pagination. Maximum limit is 10000.",
+              "required": true,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "number"
+              }
+            },
+            {
+              "name": "timeOrder",
+              "in": "query",
+              "description": "Order the history from the response by timestamp. Choose between ASC or DESC order.",
+              "required": true,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "ASC",
+                  "DESC"
+                ]
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Floor price history requestesd.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TagFloorPriceHistoryResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/tag/{slug}": {
+        "get": {
+          "tags": [
+            "Tags"
+          ],
+          "description": "Get the tagId, name and picture for a given tag slug.",
+          "operationId": "getTagIdBySlug",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "slug",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "description": "The slug of the tag to get."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Tag requested.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TagIdInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/collections": {
+        "get": {
+          "tags": [
+            "Tags"
+          ],
+          "description": "Get paginated list of available ordinals collections.",
+          "operationId": "getCollections",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "offset",
+              "in": "query",
+              "description": "Start offset to get collections. Used for pagination",
+              "required": true,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "number"
+              }
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "description": "Number of collections to get. Used for pagination. Maximum limit is 50.",
+              "required": true,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "number"
+              }
+            },
+            {
+              "name": "beforeTime",
+              "in": "query",
+              "description": "Changes totalVolume and beforeFloorPrice key values for tags. By not specifing this param, or setting the ALL value will not use any time frame for total volume and set beforeFloorPrice to null.",
+              "required": false,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "1h",
+                  "24h",
+                  "7d",
+                  "30d",
+                  "ALL"
+                ]
+              }
+            },
+            {
+              "name": "sortBy",
+              "in": "query",
+              "description": "Order the collections from the response by a column with a given sort direction. By default (if missing) will use the natural sorting from frontend.",
+              "required": false,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "WEEK_VOLUME_ASC",
+                  "WEEK_VOLUME_DESC"
+                ]
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Ordinals collections requested.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TagsResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/listing": {
+        "post": {
+          "tags": [
+            "Listing"
+          ],
+          "description": "Get list of available listings.",
+          "operationId": "getListings",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetListingsArgs"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Listings requested.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ListingsResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/listing/rbf/{txId}": {
+        "get": {
+          "tags": [
+            "Listing"
+          ],
+          "description": "Get a list of RBF listing for a given transaction id.",
+          "operationId": "getRbfListings ( Instant Snipe )",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "txId",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "description": "The transaction id to get the RBF listings."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "RBF Listings requested.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/RbfListingsResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/psbt/listing": {
+        "post": {
+          "tags": [
+            "Listing"
+          ],
+          "description": "Get a message to be signed by the seller to prepare for creating a listing of an utxo. For update, you need to call the endpoint GET /psbt/listing again with the updated arguments.",
+          "operationId": "getMessageForBulkListing",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PsbtBulkListingsArgs"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Psbt selling message to be signed by the seller to complete the creation of the listing. Includes both hex and base64 representation for ease of use.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PsbtResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/new-listing": {
+        "post": {
+          "tags": [
+            "Listing"
+          ],
+          "description": "<span style=\"display: inline-block;padding: 2px 8px;margin: 0;background-color: #ffa500;color: #ffffff;vertical-align: middle;line-height: 1.6;border-radius: 4px;font-weight: 600;font-size: 17px;\">\nLegacy Endpoint\n</span>\n\nNote: You should migrate to the endpoint [POST /external/v1/listing/bulk](#tag/Listing/operation/createNewListings)\n\nUsed to create or update a listing. The update works only after deleting the listing.\n\nRestrictions: Do not use legacy wallets! The buying process cannot include inputs signed by legacy wallets\n",
+          "operationId": "createNewListing",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewListingArgs"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "The listing created.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/NewListingResponse"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "The request failed.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/listing/bulk": {
+        "post": {
+          "tags": [
+            "Listing"
+          ],
+          "description": "Used to create or update a batch of listings. The update works only after deleting the listing.\n\nRestrictions: Do not use legacy wallets! The buying process cannot include inputs signed by legacy wallets\n",
+          "operationId": "createNewListings",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewBulkListingArgs"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "The listing created.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/NewBulkListingResponse"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "The request failed.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Listing"
+          ],
+          "description": "Delete a batch of listings.",
+          "operationId": "deleteBulkListings",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "query",
+              "name": "listingIds",
+              "description": "List of listing ids to delete, comma separated.",
+              "required": true,
+              "style": "form",
+              "explode": false,
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Confirmation if the listing was deleted.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DeleteListingResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/listing/{listingId}": {
+        "get": {
+          "tags": [
+            "Listing"
+          ],
+          "description": "Get a listing by id",
+          "operationId": "getListingById",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "listingId",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "description": "The id of the listing to get."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Listings requested.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SingleListingResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Listing"
+          ],
+          "description": "Delete an active listing.",
+          "operationId": "deleteListing",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "listingId",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "description": "The id of the listing to be deleted."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Confirmation if the listing was deleted.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DeleteListingResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/psbt/prepared": {
+        "get": {
+          "tags": [
+            "Buying"
+          ],
+          "description": "First call when buying listings. Get a message to be signed by the buyer to prepare for buying.",
+          "operationId": "getPreparedMessageForBuying",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "buyerAddress",
+              "in": "query",
+              "description": "The buyer wallet's address used for paying.",
+              "required": true,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "buyerPublicKey",
+              "in": "query",
+              "description": "The buyer wallet's public key from the address used for paying.",
+              "required": true,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "feeRateTier",
+              "in": "query",
+              "description": "Rate fee tier chosen by user for the buy transaction.",
+              "required": true,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "$ref": "#/components/schemas/FeeRateTier"
+              }
+            },
+            {
+              "name": "feeRate",
+              "in": "query",
+              "description": "Rate fee chosen by user for the buy transaction. Value in sats. Either feeRate or feeRateTier should be sent, but not both of them.",
+              "required": false,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "number",
+                "format": "int64"
+              }
+            },
+            {
+              "in": "query",
+              "name": "listingIds",
+              "description": "Comma separated list of IDs for the listings that you're preparing to buy.",
+              "required": true,
+              "style": "form",
+              "explode": false,
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            {
+              "name": "optimizationLevel",
+              "in": "query",
+              "required": false,
+              "description": "Configure the optimization of the transaction and the prepared created. Values between 0 for no optimization, and 1 to optimize. When setting optimization level 1 the receiveAddress for each address from the listings must be the same. Default 0 if not given.",
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "number",
+                "format": "int32",
+                "enum": [
+                  0,
+                  1
+                ]
+              }
+            },
+            {
+              "name": "overrideDisableSpendables",
+              "in": "query",
+              "required": false,
+              "description": "Optional, default set to false if not sent. If set to true, the endpoint will not use the spendables from the user's wallet to create the prepared message. [View more](#tag/Models/What-are-Spendables-UTXOs)",
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "boolean"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Psbt prepared message before buying response. Includes both hex and base64 representation for ease of use. (Needs to be signed before buying)",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PreparedPsbtResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/prepared": {
+        "post": {
+          "tags": [
+            "Buying"
+          ],
+          "description": "Second call when buying listings. Broadcast the prepared message, signed by the user, to prepare for buying.",
+          "operationId": "postPreparedMessageForBuying",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreparedMessageArgs"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "The transaction id broadcast.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BroadcastPreparedMessageResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/psbt/buying": {
+        "post": {
+          "tags": [
+            "Buying"
+          ],
+          "description": "Third call when buying listings. Get the message to be signed by the buyer to make the buy.\n",
+          "operationId": "getBulkBuyingMessage",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PsbtBuyingBulkArgs"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Psbt buying message to be signed by the buyer to complete the buying of listings. Includes both hex and base64 representation for ease of use.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BuyingPsbtResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/buying/bulk": {
+        "post": {
+          "tags": [
+            "Buying"
+          ],
+          "description": "Fourth and final call when buying listings. Broadcast the buying message, signed by user, to finalize the buying.\n",
+          "operationId": "postBulkBuyingMessage",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkBuyingArgs"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "List of buying response.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BulkBuyingResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/buying/pending/{address}": {
+        "get": {
+          "tags": [
+            "Buying"
+          ],
+          "description": "Get list of pending buying transactions for the given address.",
+          "operationId": "getPendingBuyingsForAddress",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "in": "path",
+              "name": "address",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "description": "The wallet address to check for pending buying transactions."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of pending buying transactions.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PendingBuyingsResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/psbt/offer/create": {
+        "post": {
+          "tags": [
+            "Offer"
+          ],
+          "description": "Get a message to be signed by the buyer to prepare for creating offers for given utxos.\n\nStep 1 in creating an offer. This api can be used to create multiple offers.\n",
+          "operationId": "postPsbtOfferCreateMessage",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PsbtOfferCreateArgs"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Psbt offer create message to be signed by the buyer to complete the creation of the offers.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PsbtOfferCreateResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/psbt/offer/accept": {
+        "post": {
+          "tags": [
+            "Offer"
+          ],
+          "description": "Get a message to be signed by the seller to prepare for accepting offers for given utxos.\n\nStep 1 in accepting an offer. This api can be used to accepet multiple offers.\n",
+          "operationId": "postPsbtOfferAcceptMessage",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PsbtOfferAcceptArgs"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Psbt offer accept message to be signed by the buyer to complete the acceptance of the offers.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PsbtOfferAcceptResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/offer/create": {
+        "post": {
+          "tags": [
+            "Offer"
+          ],
+          "description": "Second call when creating offers.\n",
+          "operationId": "postOfferCreate",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfferCreateArgs"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "The offer created.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OfferCreateResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/offer/accept": {
+        "post": {
+          "tags": [
+            "Offer"
+          ],
+          "description": "Second call when accepting offers.\n",
+          "operationId": "postOfferAccept",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfferAcceptArgs"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "The offer accepted.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OfferAcceptResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/offer/list": {
+        "post": {
+          "tags": [
+            "Offer"
+          ],
+          "description": "Get list of available offers.\n",
+          "operationId": "getListOfOffers",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfferListArgs"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Offers requested.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OfferListResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/offer/delete": {
+        "delete": {
+          "tags": [
+            "Offer"
+          ],
+          "description": "Delete an active offer.\n",
+          "operationId": "deleteOffer",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteOfferArgs"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Confirmation if the offer was deleted.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DeleteOfferResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/external/v1/rune/history": {
+        "get": {
+          "tags": [
+            "Runes"
+          ],
+          "description": "Get paginated history of floor prices for a given rune.",
+          "operationId": "getRuneFloorPriceHistory",
+          "parameters": [
+            {
+              "in": "header",
+              "name": "X-MGST-API-KEY",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "runeName",
+              "in": "query",
+              "description": "The rune name (spaced version) to get the floor price history.",
+              "required": true,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "offset",
+              "in": "query",
+              "description": "Start offset to get history. Used for pagination",
+              "required": true,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "number"
+              }
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "description": "Number of history to get. Used for pagination. Maximum limit is 10000.",
+              "required": true,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "number"
+              }
+            },
+            {
+              "name": "timeOrder",
+              "in": "query",
+              "description": "Order the history from the response by timestamp. Choose between ASC or DESC order.",
+              "required": true,
+              "style": "form",
+              "explode": true,
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "ASC",
+                  "DESC"
+                ]
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Floor price history requestesd.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/RuneFloorPriceHistoryResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "What_is_a_prepared_UTXO": {
+          "title": "What is a prepared UTXO?",
+          "type": "object",
+          "description": "Any Unspent Transaction Output, containing no special sats, and less than 1,000 sats overall - is called a Prepared UTXO.\n\nPrepared UTXOs are used as placeholders to allow other outputs to reach a certain index in the transaction. This procesure ensures the __end-to-end trustless UTXO-exchange__ functionality.\n"
+        },
+        "JsonValue": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "description": "Optional, any json schema"
+        },
+        "TagIdInfo": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The unique identifier for a tag.",
+              "format": "uuid"
+            },
+            "name": {
+              "type": "string",
+              "description": "The tag's display name."
+            },
+            "picture": {
+              "type": "string",
+              "description": "Link to the tag's picture."
+            }
+          }
+        },
+        "Tag": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The unique identifier for a tag.",
+              "format": "uuid"
+            },
+            "label": {
+              "type": "string",
+              "description": "The tag's display name."
+            },
+            "priority": {
+              "type": "number",
+              "description": "Specifies the order of the most valuable tags. Lowest value is considered the highest priority.",
+              "format": "int32"
+            },
+            "slug": {
+              "type": "string",
+              "description": "Is unique for each tag, can be used as identifier in code."
+            },
+            "isRoadarmor": {
+              "type": "boolean",
+              "deprecated": true
+            },
+            "isRodarmor": {
+              "type": "boolean"
+            },
+            "isCategory": {
+              "type": "boolean"
+            },
+            "description": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Details of the tag for presentations purpose. Is nullable only for tags that are not categories."
+            },
+            "isGrowingSupply": {
+              "type": [
+                "boolean",
+                "null"
+              ],
+              "description": "Marks if the supply of the specified tag can grow in the future. Is nullable only for tags that are not categories."
+            },
+            "allowNameSearch": {
+              "type": "boolean",
+              "description": "Marks if can search the listings from response after the name."
+            },
+            "isNameBasedCategory": {
+              "type": "boolean",
+              "description": "Specify if should showcase the name of the sat for the listing."
+            },
+            "totalSupply": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Total supply created until now.",
+              "format": "int64 | \"Unknown\""
+            },
+            "circulatingSupply": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "How many listings of this tag are available for the market.",
+              "format": "int64"
+            },
+            "activeInEpoch": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "How many sats of this tag are active in the current epoch.",
+              "format": "int64"
+            },
+            "activePast365d": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "How many sats of this tag are active in the past 365 days.",
+              "format": "int64"
+            },
+            "sequestered": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "How many sats of this tag are sequestered.",
+              "format": "int64"
+            },
+            "inscribed": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "How many sats of this tag are inscribed.",
+              "format": "int64"
+            },
+            "isVirtual": {
+              "type": "boolean",
+              "description": "Differentiator between rare-sats and tracked ordinal collections. False for rare-sats and true for ordinal collections."
+            },
+            "useTagImage": {
+              "type": "boolean",
+              "description": "Marks if the inscriptions in page should use the tag image. True when the inscriptions use the same image as the collection"
+            },
+            "floorPrice": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The lowest price of a listing which contains a sat with the specified tag. Value in satoshis. Can be nullable for tags that don't have any available listings.",
+              "format": "int64"
+            },
+            "beforeFloorPrice": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The lowest price of a listing which contains a sat with the specified tag in the given time frame. Value in satoshis. Can be nullable for tags that don't have any available listings.",
+              "format": "int64"
+            },
+            "floorRelativeUnitPrice": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The lowest relative unit price of a listing which contains a sat with the specified tag. Value in satoshis. Can be nullable for tags that don't have any available listings.",
+              "format": "int64"
+            },
+            "itemsCount": {
+              "type": "string",
+              "description": "Number of available listings.",
+              "format": "int64"
+            },
+            "pendingPurchaseCount": {
+              "type": "string",
+              "description": "Number of listings that are pending to be bought. When the buy transaction is waiting to appear in the next block to be mined. This counts only listings bought first from our site or via api.",
+              "format": "int64"
+            },
+            "weekVolume": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Value in satoshis."
+            },
+            "thirtyDayVolume": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Value in satoshis."
+            },
+            "totalVolume": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Value in satoshis."
+            },
+            "pending": {
+              "type": "string",
+              "description": "Number of UTXOs that are pending to be bought. Contains the listings couted by 'pendingPurchaseCount' and RBF listings from insta-snipe.",
+              "format": "int64"
+            },
+            "sales": {
+              "type": "string",
+              "description": "Number of listings sold (consider only successful broadcasted transactions). The beforeTime filter is being applied to this value.",
+              "format": "int63"
+            },
+            "sattributes": {
+              "type": "array",
+              "description": "Required sattributes for the tag. These are required to compose the tag.",
+              "items": {
+                "$ref": "#/components/schemas/Sattribute"
+              }
+            },
+            "additionalSattributes": {
+              "type": "array",
+              "description": "Sattributes that can be added for the tag for more filtering. These are NOT required to compose the tag.",
+              "items": {
+                "$ref": "#/components/schemas/Sattribute"
+              }
+            },
+            "change": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The procentage change in the tag's floor price in the given time frame.",
+              "format": "double"
+            },
+            "isExternalFloor": {
+              "type": [
+                "boolean",
+                "null"
+              ],
+              "description": "Optional, this field indicates whether the floor is fetched from Magisat's listings, or from other (external) sources."
+            }
+          }
+        },
+        "TagsResponse": {
+          "type": "object",
+          "properties": {
+            "results": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Tag"
+              }
+            },
+            "count": {
+              "type": "string",
+              "format": "int64"
+            }
+          }
+        },
+        "CollectionTag": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The unique identifier for a listing",
+              "format": "uuid"
+            },
+            "slug": {
+              "type": "string",
+              "description": "Is unique for each collection, can be used as identifier in code."
+            },
+            "label": {
+              "type": "string",
+              "description": "The collection's display name."
+            },
+            "isClub": {
+              "type": "boolean",
+              "description": "Marks if the collection is a club of collections. Examples: sub-100k, bitmap, cursed"
+            },
+            "useTagImage": {
+              "type": "boolean",
+              "description": "Marks if the inscriptions in page should use the tag image for faster loading. True when the inscriptions use the same image as the collection."
+            }
+          }
+        },
+        "SatIncludedInCollectionInfo": {
+          "type": "object",
+          "properties": {
+            "sat": {
+              "type": "string",
+              "description": "Inscribed sat number which is part of the collection.",
+              "format": "int64"
+            },
+            "inscriptionId": {
+              "type": "string",
+              "description": "The identifier for the inscription."
+            },
+            "displayName": {
+              "type": "string",
+              "description": "Special name of the inscription within the collection."
+            },
+            "s3Url": {
+              "type": "string",
+              "description": "Thumbnail of the insription for faster lookup."
+            },
+            "overrideS3Url": {
+              "type": "string",
+              "description": "Alternative thumbnail of the insription for faster lookup."
+            },
+            "contentType": {
+              "type": "string",
+              "description": "The MIME content type"
+            },
+            "flagLevel": {
+              "type": "number",
+              "description": "Any value > 0 means flagged. 0 means not flagged.",
+              "format": "int32"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "collectionTag": {
+              "$ref": "#/components/schemas/CollectionTag"
+            }
+          }
+        },
+        "RuneOnUtxo": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "string",
+              "description": "The name of the rune - unique among all runes."
+            },
+            {
+              "type": "object",
+              "properties": {
+                "amount": {
+                  "description": "the amount of runes you have available",
+                  "type": "string",
+                  "format": "int64"
+                },
+                "divisibility": {
+                  "description": "Number of decimals for the rune (divide the amount by 10^divisibility to get the actual amount)",
+                  "type": "number"
+                },
+                "symbol": {
+                  "description": "The Unicode symbol of the rune. Used to express different denominations of the rune",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "parent": {
+                  "description": "Optional, parent inscription id for the rune",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "floorPrice": {
+                  "description": "Optional, current floor price of the rune",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "pricePerCoin": {
+                  "description": "Optional, price per coin of the rune on this listing",
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "amount",
+                "divisibility",
+                "symbol"
+              ]
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2,
+          "additionalItems": false
+        },
+        "ListingBuying": {
+          "type": "object",
+          "properties": {
+            "buyerAddress": {
+              "type": "string",
+              "description": "The buyer wallet's address used for paying."
+            },
+            "type": {
+              "type": "string",
+              "description": "From which method the buy was made. Either from a listing or from an offer.",
+              "enum": [
+                "LISTING",
+                "OFFER"
+              ]
+            }
+          }
+        },
+        "Listing": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The unique identifier for a listing.",
+              "format": "uuid"
+            },
+            "type": {
+              "type": "string",
+              "description": "Type of listing that specify who created it.",
+              "enum": [
+                "OWNER",
+                "OFFER",
+                "RBF"
+              ]
+            },
+            "status": {
+              "type": "string",
+              "description": "The status of the listing. Specifies the state of decoration and the availability state. When in status 'DECORATED' the listing can be bought.",
+              "enum": [
+                "DECORATED",
+                "PENDING_PURCHASE"
+              ]
+            },
+            "utxo": {
+              "type": "string",
+              "description": "The utxo that is listed. Can be considered unique.",
+              "format": "txid:vout",
+              "example": "b224d522dc25ba984f774498dda6808a97e380abf4bf8e0ac39a51a0b5d91e10:0"
+            },
+            "utxoValue": {
+              "type": "string",
+              "description": "The value of an utxo is the number of satoshis contained by the utxo, and the value used in tx if you don't take in consideration the special satoshis.",
+              "format": "int64"
+            },
+            "sellerAddress": {
+              "type": "string",
+              "description": "The address that owns the utxo and created the listing."
+            },
+            "sellerReceiveAddress": {
+              "type": "string",
+              "description": "The address in which the listing's price will be sent to when the listings is bought."
+            },
+            "buyerTxId": {
+              "type": "string",
+              "description": "The bitcoin transaction id in which the listings was sold."
+            },
+            "price": {
+              "type": "string",
+              "description": "Value in satoshis. The price at which the listings is being sold.",
+              "format": "int64"
+            },
+            "utxoSize": {
+              "type": "string",
+              "description": "The value of an utxo is the number of satoshis contained by the utxo, and the value used in tx if you don't take in consideration the special satoshis.",
+              "format": "int64"
+            },
+            "createdAt": {
+              "type": "string",
+              "description": "The time at which the listings was created by the seller.",
+              "format": "date-time"
+            },
+            "updatedAt": {
+              "type": "string",
+              "description": "The time at which the listings was updated by the seller.",
+              "format": "date-time"
+            },
+            "lowestSatIndex": {
+              "type": "string",
+              "description": "The lowest sat from the first sat range in the utxo.",
+              "format": "int64"
+            },
+            "lowestSatBlockNumber": {
+              "type": "number",
+              "description": "The block number in which the lowest sat was created.",
+              "format": "int32"
+            },
+            "lowestSatBlockTimestamp": {
+              "type": "string",
+              "description": "The block timestamp when the lowest sat was created.",
+              "format": "date-time"
+            },
+            "relativeUnitPrice": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The relative unit price is computed using the formula (price - utxoSize) / countOfMainSatoshis.",
+              "format": "int64"
+            },
+            "minFeeRate": {
+              "type": "number",
+              "description": "The minimum fee rate in sat/vB that the buyer should use to buy the listing. Value is non-zero and relevant for RBF listings."
+            },
+            "minFeeTotal": {
+              "type": "number",
+              "description": "The minimum fee in satoshis that the buyer should use to buy the listing. Value is non-zero and relevant for RBF listings."
+            },
+            "sellerVerified": {
+              "type": "boolean",
+              "description": "Mark if the seller of the listing is verified by Magisat."
+            },
+            "sellerDisplayName": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The name of the seller to display to users."
+            },
+            "sellerAvatarImageUrl": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "A link to the seller avatar to present to users."
+            },
+            "sellerWebsiteUrl": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "A link to the seller's presentation website."
+            },
+            "specialSatsCount": {
+              "type": "string",
+              "description": "How many unique special sats are in the listing's utxo.",
+              "format": "int64"
+            },
+            "includedInCollections": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/SatIncludedInCollectionInfo"
+              }
+            },
+            "mainSatoshi": {
+              "$ref": "#/components/schemas/MainSatoshi"
+            },
+            "mainTag": {
+              "$ref": "#/components/schemas/MainTag"
+            },
+            "mainSecondaryTags": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "$ref": "#/components/schemas/MainTag"
+              }
+            },
+            "additionalDisplayRareSatSattributes": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "$ref": "#/components/schemas/AdditionalDisplayRareSatSattributes"
+              }
+            },
+            "runes": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/RuneOnUtxo"
+              }
+            }
+          }
+        },
+        "RbfListing": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/Listing"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "mainTagId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "The main tag id of the listing.",
+                  "format": "uuid"
+                },
+                "deletedAt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "The time at which the listings was deleted by the seller.",
+                  "format": "date-time"
+                },
+                "purchasedAt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "The time at which the listings was bought by the buyer.",
+                  "format": "date-time"
+                }
+              }
+            }
+          ]
+        },
+        "SingleListingResponse": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The unique identifier for a listing.",
+              "format": "uuid"
+            },
+            "utxo": {
+              "type": "string",
+              "description": "The utxo that is listed. Can be considered unique.",
+              "format": "txid:vout",
+              "example": "b224d522dc25ba984f774498dda6808a97e380abf4bf8e0ac39a51a0b5d91e10:0"
+            },
+            "utxoValue": {
+              "type": "string",
+              "description": "The value of an utxo is the number of satoshis contained by the utxo, and the value used in tx if you don't take in consideration the special satoshis.",
+              "format": "int64"
+            },
+            "sellerAddress": {
+              "type": "string",
+              "description": "The address that owns the utxo and created the listing."
+            },
+            "sellerReceiveAddress": {
+              "type": "string",
+              "description": "The address in which the listing's price will be sent to when the listings is bought."
+            },
+            "status": {
+              "type": "string",
+              "description": "The status of the listing. Specifies the state of decoration and the availability state. When in status 'DECORATED' the listing can be bought.",
+              "enum": [
+                "UNDECORATED",
+                "DECORATED",
+                "DECORATION_PENDING",
+                "PENDING_PURCHASE",
+                "CANCELLED",
+                "FINALIZED",
+                "SPENT",
+                "UNLISTED"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "description": "Type of listing that specify who created it.",
+              "enum": [
+                "OWNER",
+                "OFFER",
+                "RBF"
+              ]
+            },
+            "buyerTxId": {
+              "type": "string",
+              "description": "The bitcoin transaction id in which the listings was sold."
+            },
+            "price": {
+              "type": "string",
+              "description": "Value in satoshis. The price at which the listings is being sold.",
+              "format": "int64"
+            },
+            "utxoSize": {
+              "type": "string",
+              "description": "The value of an utxo is the number of satoshis contained by the utxo, and the value used in tx if you don't take in consideration the special satoshis.",
+              "format": "int64"
+            },
+            "mainTagId": {
+              "type": "string",
+              "description": "The main tag id of the listing.",
+              "format": "uuid"
+            },
+            "createdAt": {
+              "type": "string",
+              "description": "The time at which the listings was created by the seller.",
+              "format": "date-time"
+            },
+            "deletedAt": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The time at which the listings was deleted by the seller.",
+              "format": "date-time"
+            },
+            "purchasedAt": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The time at which the listings was bought by the buyer.",
+              "format": "date-time"
+            },
+            "updatedAt": {
+              "type": "string",
+              "description": "The time at which the listings was updated by the seller.",
+              "format": "date-time"
+            },
+            "lowestSatIndex": {
+              "type": "string",
+              "description": "The lowest sat from the first sat range in the utxo.",
+              "format": "int64"
+            },
+            "lowestSatBlockNumber": {
+              "type": "number",
+              "description": "The block number in which the lowest sat was created.",
+              "format": "int32"
+            },
+            "lowestSatBlockTimestamp": {
+              "type": "string",
+              "description": "The block timestamp when the lowest sat was created.",
+              "format": "date-time"
+            },
+            "relativeUnitPrice": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The relative unit price is computed using the formula (price - utxoSize) / countOfMainSatoshis.",
+              "format": "int64"
+            },
+            "minFeeRate": {
+              "type": "number",
+              "description": "The minimum fee rate in sat/vB that the buyer should use to buy the listing. Value is non-zero and relevant for RBF listings."
+            },
+            "minFeeTotal": {
+              "type": "number",
+              "description": "The minimum fee in satoshis that the buyer should use to buy the listing. Value is non-zero and relevant for RBF listings."
+            },
+            "sellerVerified": {
+              "type": "boolean",
+              "description": "Mark if the seller of the listing is verified by Magisat."
+            },
+            "sellerDisplayName": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The name of the seller to display to users."
+            },
+            "sellerAvatarImageUrl": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "A link to the seller avatar to present to users."
+            },
+            "sellerWebsiteUrl": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "A link to the seller's presentation website."
+            },
+            "specialSatsCount": {
+              "type": "string",
+              "description": "How many unique special sats are in the listing's utxo.",
+              "format": "int64"
+            },
+            "includedInCollections": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/SatIncludedInCollectionInfo"
+              }
+            },
+            "mainSatoshi": {
+              "$ref": "#/components/schemas/MainSatoshi"
+            },
+            "mainTag": {
+              "nullable": true,
+              "$ref": "#/components/schemas/Tag"
+            },
+            "mainSecondaryTags": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "$ref": "#/components/schemas/Tag"
+              }
+            },
+            "additionalDisplayRareSatSattributes": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "$ref": "#/components/schemas/AdditionalDisplayRareSatSattributes"
+              }
+            },
+            "runes": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/RuneOnUtxo"
+              }
+            }
+          }
+        },
+        "GetListingsArgs": {
+          "required": [
+            "limit",
+            "offset"
+          ],
+          "type": "object",
+          "properties": {
+            "offset": {
+              "type": "number",
+              "description": "Start index to get listings. Used for pagination.",
+              "format": "int64"
+            },
+            "limit": {
+              "type": "number",
+              "description": "How many listings to fetch. Used for pagination. Maximum limit 50.",
+              "format": "int64"
+            },
+            "tagId": {
+              "type": "string",
+              "description": "Get tagId from /tag. Used to filter listings which have at least a satoshi that has all required sattributes of the given tag.",
+              "format": "uuid"
+            },
+            "additionalSattributes": {
+              "type": "array",
+              "description": "List of Sattribute ids. Get them from /tag response under the additionalSattributes field. Used in combination with tagId to allow more filtering of the listings. Will fetch listings which have at least a satoshi that hash all required sattributes of the given tag, plus the given list of additional sattributes given.",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "minUpdatedAt": {
+              "type": "string",
+              "description": "Filter listings that were updated after the given date-time (is inclusive).",
+              "format": "date-time"
+            },
+            "maxUpdatedAt": {
+              "type": "string",
+              "description": "Filter listings that were updated before the given date-time (is inclusive).",
+              "format": "date-time"
+            },
+            "minPrice": {
+              "type": "string",
+              "description": "Value in satoshis. Filter listings that have a price greater or equal to the given value.",
+              "format": "int64"
+            },
+            "maxPrice": {
+              "type": "string",
+              "description": "Value in satoshis. Filter listings that have a price lower or equal to the given value.",
+              "format": "int64"
+            },
+            "minUtxoSize": {
+              "type": "string",
+              "description": "Value in satoshis. Filter listings that have an utxo value greater or equal to the given value. An utxo's value is the number of satoshis contained by the utxo, and the value used in tx if you don't take in consideration the special satoshis.",
+              "format": "int64"
+            },
+            "maxUtxoSize": {
+              "type": "string",
+              "description": "Value in satoshis. Filter listings that have an utxo value lower or equal to the given value. An utxo's value is the number of satoshis contained by the utxo, and the value used in tx if you don't take in consideration the special satoshis.",
+              "format": "int64"
+            },
+            "minSatRange": {
+              "type": "string",
+              "description": "Sat value. Filter listings that contains satoshis greater or equal to the given value.",
+              "format": "int64"
+            },
+            "maxSatRange": {
+              "type": "string",
+              "description": "Sat value. Filter listings that contains satoshis greater or equal to the given value.",
+              "format": "int64"
+            },
+            "minBlockNumber": {
+              "type": "string",
+              "description": "Filter listings that contains satoshis created in or after the given block. For a given sat, we consider the block number, the block in which the sat first appeared (in which was created), not the block which created the utxo, that contains the sat now.",
+              "format": "int32"
+            },
+            "maxBlockNumber": {
+              "type": "string",
+              "description": "Filter listings that contains satoshis created before or in the given block. For a given sat, we consider the block number, the block in which the sat first appeared (in which was created), not the block which created the utxo, that contains the sat now.",
+              "format": "int32"
+            },
+            "minBlockTimestamp": {
+              "type": "string",
+              "description": "Filter listings that contains satoshis created after the given timestamp (is inclusive). For a given sat, we consider the block timestamp, the timestamp in which the sat first appeared (in which was created), not the timestamp creation of the utxo in which it appears now.",
+              "format": "date-time"
+            },
+            "maxBlockTimestamp": {
+              "type": "string",
+              "description": "Filter listings that contains satoshis created before the given timestamp (is inclusive). For a given sat, we consider the block timestamp, the timestamp in which the sat first appeared (in which was created), not the timestamp creation of the utxo in which it appears now.",
+              "format": "date-time"
+            },
+            "orderByColumnWithDirection": {
+              "type": "array",
+              "description": "Order the listings from the response by a column with a given sort direction. If you specify the same column with both sort direction, the descending order will be used, regardless of the order you place them in the array (you shouldn't send them both anyways). If you give multiple order values, the priority in sorting is given by the above list. Ex. If you send [\"PRICE_ASC\", \"CREATED_AT_ASC\"], the listings will be sorted by price first, than by createdAt.",
+              "example": [],
+              "items": {
+                "type": "string",
+                "enum": [
+                  "PRICE_ASC",
+                  "PRICE_DESC",
+                  "UPDATED_AT_ASC",
+                  "UPDATED_AT_DESC",
+                  "BLOCK_NUMBER_ASC",
+                  "BLOCK_NUMBER_DESC",
+                  "BLOCK_TIMESTAMP_ASC",
+                  "BLOCK_TIMESTAMP_DESC",
+                  "RANGE_START_ASC",
+                  "RANGE_START_DESC",
+                  "RELATIVE_UNIT_PRICE_ASC",
+                  "RELATIVE_UNIT_PRICE_DESC"
+                ]
+              }
+            },
+            "satName": {
+              "type": "string",
+              "description": "Filter listings that contains satoshis that contain the given sat name. Must be between 1 and 11 lowercase letters."
+            },
+            "includePendingPurchase": {
+              "type": "boolean",
+              "description": "Set to true to include listings that are pending to be bought."
+            },
+            "isVirtual": {
+              "type": "boolean",
+              "description": "Works only if not sending 'tagId'. Include in response listings that contain at least an ordinal inscription."
+            }
+          }
+        },
+        "ListingsResponse": {
+          "type": "object",
+          "properties": {
+            "results": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Listing"
+              }
+            },
+            "count": {
+              "type": "string",
+              "format": "int64"
+            }
+          }
+        },
+        "Sattribute": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The unique identifier for a sattribute.",
+              "format": "uuid"
+            },
+            "slug": {
+              "type": "string",
+              "description": "Is unique for each sattribute, can be used as identifier in code."
+            },
+            "color": {
+              "type": "string",
+              "description": "Hex encoded color.",
+              "example": "#ffffff"
+            },
+            "label": {
+              "type": "string",
+              "description": "The sattribute's display name."
+            },
+            "priority": {
+              "type": "number",
+              "description": "Specifies the order of the most valuable sattributes. Lowest value is considered the highest priority.",
+              "format": "int32"
+            },
+            "isVirtual": {
+              "type": "boolean",
+              "description": "Differentiator between rare-sats and tracked ordinal collections. False for rare-sats and true for ordinal collections."
+            },
+            "spendable": {
+              "type": "boolean",
+              "description": "Marks if the sattribute can be used for payment if there are no more commons in the wallet and the user has not disabled the use of them."
+            }
+          }
+        },
+        "MainSatoshi": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "rangeStart": {
+              "type": "string",
+              "description": "Start of sat range. Is inclusive.",
+              "format": "int64"
+            },
+            "rangeEnd": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "End of sat range. Is exclusive. Can be null iff the sat range contains a single sat.",
+              "format": "int64"
+            },
+            "name": {
+              "type": "string",
+              "description": "Name of the satoshi from rangeStart."
+            },
+            "blockNumber": {
+              "type": "number",
+              "description": "Block number in which the sat range was created, not the block number in which has appeared recently.",
+              "format": "int32"
+            },
+            "blockTimestamp": {
+              "type": "string",
+              "description": "Block timestamp when the sat range was created, not the block timestamp in which has appeared recently.",
+              "format": "date-time"
+            },
+            "sattributes": {
+              "type": "array",
+              "description": "List of sattributes for the given sat range.",
+              "items": {
+                "$ref": "#/components/schemas/Sattribute"
+              }
+            },
+            "count": {
+              "type": "number",
+              "description": "How many special sats that meet the sattributes given above are in the same utxo. If the utxo contains a single range, like [0, 10] which are considered specials the count will be set to 10 (10-0).",
+              "format": "int32"
+            },
+            "inscribedCount": {
+              "type": "number",
+              "description": "How many inscribed sats are in the same utxo.",
+              "format": "int32"
+            },
+            "offset": {
+              "type": "number",
+              "description": "The offset of the main satoshi in the utxo. The offset is the number of sats from the first satoshi in the utxo to the main satoshi. Offset is 0 if the main satoshi is the first in the utxo.",
+              "format": "int64"
+            }
+          },
+          "description": "The main satoshi of a listing represents the most valuable satoshi of the listing (the one with the highest priority from the utxo and the most sattributes)."
+        },
+        "MainTag": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The unique identifier for a tag.",
+              "format": "uuid"
+            },
+            "slug": {
+              "type": "string",
+              "description": "Is unique for each tag, can be used as identifier in code."
+            },
+            "label": {
+              "type": "string",
+              "description": "The tag's display name."
+            },
+            "isNameBasedCategory": {
+              "type": "boolean",
+              "description": "Specify if should showcase the name of the sat for the listing."
+            }
+          },
+          "description": "The main tag of a listing represents the most valuable tag of the listing given by the main satoshi."
+        },
+        "AdditionalDisplayRareSatSattributes": {
+          "type": "object",
+          "properties": {
+            "sattribute": {
+              "$ref": "#/components/schemas/Sattribute"
+            },
+            "count": {
+              "type": "number",
+              "description": "Number of additional sats in the listing with the given sattribute.",
+              "format": "int64"
+            }
+          }
+        },
+        "PsbtResponse": {
+          "type": "object",
+          "properties": {
+            "psbtToHex": {
+              "type": "string",
+              "description": "Prepared message encoded in hex for buyer to sign.",
+              "format": "hex"
+            },
+            "psbtToBase64": {
+              "type": "string",
+              "description": "Prepared message encoded in base64 for buyer to sign.",
+              "format": "base64"
+            }
+          },
+          "required": [
+            "psbtToHex",
+            "psbtToBase64"
+          ]
+        },
+        "PreparedPsbtResponse": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/PsbtResponse"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "hasEnoughDummyUtxos": {
+                  "type": "boolean",
+                  "description": "Specifies if the address given has enough prepared utxos to buy the listing. If this is true, the rest of the fields will be empty strings, since the user doesn't need to sign any transaction."
+                },
+                "increasedFeeRate": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "description": "Optional, specify the network fee rate in sat/vB that the buyer should use to create prepared utxos. Present if the given feeRateTier has changed since the request was made."
+                }
+              },
+              "required": [
+                "hasEnoughDummyUtxos"
+              ]
+            }
+          ]
+        },
+        "BuyingPsbtResponse": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/PsbtResponse"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "structure": {
+                  "type": "string",
+                  "description": "Specify the type of the psbt based on its inputs and outputs",
+                  "enum": [
+                    "SPECIAL_SAT",
+                    "RUNE"
+                  ]
+                },
+                "increasedFeeRate": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "description": "Optional, specify the network fee rate in sat/vB that the buyer should use to buy the listing. Present if the given feeRateTier has changed since the request was made."
+                },
+                "saleableListings": {
+                  "type": [
+                    "array",
+                    "null"
+                  ],
+                  "description": "Optional, list of listings that can be bought. Present if not all required listings can be bought, if some UTXOs were already spent.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "listingId": {
+                        "type": "string",
+                        "description": "The unique identifier for the listing."
+                      },
+                      "receiveAddress": {
+                        "type": "string",
+                        "description": "The address to receive the bought utxo from listing."
+                      },
+                      "replace": {
+                        "type": [
+                          "boolean",
+                          "null"
+                        ],
+                        "description": "If the buying tx of the listing can be replaced with another one."
+                      }
+                    }
+                  }
+                },
+                "usedRuneUtxos": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "utxo": {
+                        "type": "string",
+                        "description": "The utxo with runes used as payment.",
+                        "format": "txid:vout"
+                      },
+                      "runes": {
+                        "type": "array",
+                        "description": "List of runes present on the utxo.",
+                        "items": {
+                          "$ref": "#/components/schemas/RuneOnUtxo"
+                        }
+                      }
+                    }
+                  },
+                  "description": "Optional, **if the user doesn't have enough payment utxos** for the buy, will try to use some utxos with runes and specify which one in this value. Used for second confirmation if the user may or not want to use them."
+                },
+                "feeRate": {
+                  "type": "number",
+                  "description": "Optional, it is the chosen network fee rate in sat/vB for the current buying transaction. Present if higher than the network fee rate, in case that some utxos bought are not confirmed yet and this tx has unpaid child fee. Fee for buying transaction is increased to have the **effective fee rate** the one requested."
+                }
+              },
+              "required": [
+                "structure"
+              ]
+            }
+          ]
+        },
+        "PreparedMessageArgs": {
+          "required": [
+            "psbtBase64"
+          ],
+          "type": "object",
+          "properties": {
+            "psbtBase64": {
+              "type": "string",
+              "description": "The prepared message, signed by the user.",
+              "format": "base64"
+            }
+          }
+        },
+        "BroadcastPreparedMessageResponse": {
+          "type": "object",
+          "properties": {
+            "txId": {
+              "type": "string",
+              "description": "The transaction id which was broadcast."
+            }
+          }
+        },
+        "Buying": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The unique identifier of a buying.",
+              "format": "uuid"
+            },
+            "listingId": {
+              "type": "string",
+              "description": "The unique identifier the listing associated with the buying.",
+              "format": "uuid"
+            },
+            "txId": {
+              "type": "string",
+              "description": "The bitcoin transaction id in which the listings was sold."
+            },
+            "status": {
+              "type": "string",
+              "description": "The status of the buying order.",
+              "enum": [
+                "PENDING_PURCHASE",
+                "MEMPOOL_FINALIZED",
+                "FINALIZED",
+                "SPENT"
+              ]
+            },
+            "dummyUtxos": {
+              "type": "array",
+              "description": "List of utxos used to protect the tx.",
+              "items": {
+                "type": "string",
+                "format": "txid:vout"
+              }
+            },
+            "payUtxos": {
+              "type": "array",
+              "description": "List of utxos used to pay the transaction.",
+              "items": {
+                "type": "string",
+                "format": "txid:vout"
+              }
+            },
+            "buyerAddress": {
+              "type": "string",
+              "description": "The buyer wallet's address used for paying."
+            },
+            "buyerPublicKey": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The buyer wallet's public key from the address used for paying."
+            },
+            "buyerReceiveAddress": {
+              "type": "string",
+              "description": "The address where to send the utxos bought. Needs to be the same as the one specified in the request for the psbt buying message."
+            },
+            "buyerSignature": {
+              "type": "string",
+              "description": "Buyer signature."
+            },
+            "platformFee": {
+              "type": "string",
+              "description": "The platform fee taken for this transaction.",
+              "format": "int64"
+            },
+            "createdAt": {
+              "type": "string",
+              "description": "The date-time when the buying was placed.",
+              "format": "date-time"
+            },
+            "buyerWalletType": {
+              "type": "string",
+              "description": "The wallet type used by buyer.",
+              "enum": [
+                "UNISAT",
+                "XVERSE"
+              ]
+            },
+            "affiliateId": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Mark that the buying was made using your affiliateId."
+            }
+          }
+        },
+        "BulkBuying": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The unique identifier of a buying.",
+              "format": "uuid"
+            },
+            "listingId": {
+              "type": "string",
+              "description": "The unique identifier the listing associated with the buying.",
+              "format": "uuid"
+            },
+            "txId": {
+              "type": "string",
+              "description": "The bitcoin transaction id in which the listings was sold."
+            },
+            "broadcastStatus": {
+              "type": "string",
+              "description": "Status for braodcasting the transaction",
+              "enum": [
+                "PENDING",
+                "FAILED",
+                "SUCCESS"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "description": "From which method the buy was made. Either from a listing or from an offer.",
+              "enum": [
+                "LISTING",
+                "OFFER"
+              ]
+            },
+            "dummyUtxos": {
+              "type": "array",
+              "description": "List of utxos used to protect the tx.",
+              "items": {
+                "type": "string",
+                "format": "txid:vout"
+              }
+            },
+            "payUtxos": {
+              "type": "array",
+              "description": "List of utxos used to pay the transaction.",
+              "items": {
+                "type": "string",
+                "format": "txid:vout"
+              }
+            },
+            "buyerAddress": {
+              "type": "string",
+              "description": "The buyer wallet's address used for paying."
+            },
+            "buyerPublicKey": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The buyer wallet's public key from the address used for paying."
+            },
+            "buyerReceiveAddress": {
+              "type": "string",
+              "description": "The address where to send the utxos bought. Needs to be the same as the one specified in the request for the psbt buying message."
+            },
+            "buyerSignature": {
+              "type": "string",
+              "description": "Buyer signature."
+            },
+            "platformFee": {
+              "type": "string",
+              "description": "The platform fee taken for this transaction.",
+              "format": "int64"
+            },
+            "createdAt": {
+              "type": "string",
+              "description": "The date-time when the buying was placed.",
+              "format": "date-time"
+            },
+            "buyerWalletType": {
+              "type": "string",
+              "description": "The wallet type used by buyer.",
+              "enum": [
+                "UNISAT",
+                "XVERSE"
+              ]
+            },
+            "affiliateId": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Mark that the buying was made using your affiliateId."
+            },
+            "referralAddress": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Referral address used for the buying."
+            },
+            "paidReferralAt": {
+              "type": "string",
+              "description": "The date-time when the referral was paid.",
+              "format": "date-time"
+            }
+          }
+        },
+        "BuyingArgs": {
+          "required": [
+            "buyerAddress",
+            "buyerPublicKey",
+            "buyerReceiveAddress",
+            "buyerSignature",
+            "feeRateTier",
+            "listingIds"
+          ],
+          "type": "object",
+          "properties": {
+            "listingIds": {
+              "minItems": 1,
+              "type": "array",
+              "description": "List of listing ids that the user wants to buy.",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "buyerAddress": {
+              "type": "string",
+              "description": "The buyer wallet's address used for paying."
+            },
+            "buyerReceiveAddress": {
+              "type": "string",
+              "description": "The address where to send the utxos bought. Needs to be the same as the one specified in the request for the psbt buying message."
+            },
+            "feeRateTier": {
+              "$ref": "#/components/schemas/FeeRateTier"
+            },
+            "buyerPublicKey": {
+              "type": "string",
+              "description": "The buyer wallet's public key from the address used for paying."
+            },
+            "buyerSignature": {
+              "type": "string",
+              "format": "base64",
+              "description": "The signed message in base64 for buying. The message must be signed by the buyer. You can get the message to be signed from the endpoint /psbt/buying."
+            },
+            "buyerWalletType": {
+              "type": "string",
+              "description": "Specify what wallet is used to make the buying.",
+              "enum": [
+                "xverse_wallet",
+                "unisat_wallet"
+              ]
+            }
+          }
+        },
+        "BulkBuyingArgs": {
+          "required": [
+            "listings",
+            "buyerAddress",
+            "buyerPublicKey",
+            "buyerSignature",
+            "buyerWalletType"
+          ],
+          "type": "object",
+          "properties": {
+            "listings": {
+              "type": "array",
+              "description": "Information about each listings that is going to be bought, where to send each utxo bought.",
+              "items": {
+                "$ref": "#/components/schemas/ListingItemBuyInfo"
+              }
+            },
+            "buyerAddress": {
+              "type": "string",
+              "description": "The buyer wallet's address used for paying."
+            },
+            "buyerPublicKey": {
+              "type": "string",
+              "description": "The buyer wallet's public key from the address used for paying."
+            },
+            "buyerSignature": {
+              "type": "string",
+              "format": "base64",
+              "description": "The signed message in base64 for buying. The message must be signed by the buyer. You can get the message to be signed from the endpoint /psbt/buying."
+            },
+            "buyerWalletType": {
+              "type": "string",
+              "description": "Specify what wallet is used to make the buying.",
+              "enum": [
+                "xverse_wallet",
+                "unisat_wallet"
+              ]
+            },
+            "optimizationLevel": {
+              "description": "Configure the optimization of the transaction and the prepared created. Values between 0 for no optimization, and 1 to optimize. When setting optimization level 1 the receiveAddress for each address from the listings must be the same.",
+              "type": "number",
+              "format": "int32",
+              "default": 0,
+              "enum": [
+                0,
+                1
+              ]
+            },
+            "receiveAddress": {
+              "type": "string",
+              "description": "If the optimization level is set to 1, this key is required and needs to be set on all listings from the request."
+            }
+          }
+        },
+        "BulkBuyingResponse": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/BulkBuying"
+          }
+        },
+        "FeeRateTier": {
+          "type": "string",
+          "description": "Rate fee tier chosen by user for the buy transaction.",
+          "enum": [
+            "fastestFee",
+            "halfHourFee",
+            "hourFee",
+            "minimumFee"
+          ]
+        },
+        "NewListingArgs": {
+          "required": [
+            "utxo",
+            "price",
+            "sellerAddress",
+            "sellerPublicKey",
+            "sellerReceiveAddress",
+            "sellerSignature"
+          ],
+          "type": "object",
+          "properties": {
+            "utxo": {
+              "description": "The utxo that is going to be listed by the user. The utxo must be owned by the sellerAddress.",
+              "type": "string",
+              "format": "txid:vout",
+              "example": "b224d522dc25ba984f774498dda6808a97e380abf4bf8e0ac39a51a0b5d91e10:0"
+            },
+            "price": {
+              "description": "The value in satoshis as payment for the utxo requested by the user. Must be at least 546 sats and smaller than 2000000000000000 sats. Also, the price cannot be lower than the utxo base value.",
+              "type": "string",
+              "format": "int64"
+            },
+            "sellerAddress": {
+              "description": "The seller wallet's address owning the utxo to be listed.",
+              "type": "string"
+            },
+            "sellerPublicKey": {
+              "description": "The seller wallet's public key from the address owning the utxo to be listed.",
+              "type": "string"
+            },
+            "sellerReceiveAddress": {
+              "description": "The address where to send the price requested for the listing. Can be the same as the sellerAddress if the user wants to receive the payment for the listing on the same wallet. The user can also set a different address, other than the one used to made the listing, to receive the payment.",
+              "type": "string"
+            },
+            "sellerSignature": {
+              "description": "The sell message in base64 for the given utxo. The message must be signed by the seller. You can get the message to be signed from the endpoint GET /psbt/listing.",
+              "type": "string",
+              "format": "base64"
+            }
+          }
+        },
+        "NewBulkListingArgs": {
+          "required": [
+            "sellerAddress",
+            "sellerPublicKey",
+            "sellerSignature",
+            "listings"
+          ],
+          "type": "object",
+          "properties": {
+            "sellerAddress": {
+              "description": "The address of the seller's ordinals wallet owning (some of) the UTXOs to be listed.",
+              "type": "string"
+            },
+            "sellerPublicKey": {
+              "description": "The public key of the seller's ordinals wallet owning (some of) the UTXOs to be listed.",
+              "type": "string"
+            },
+            "sellerPaymentAddress": {
+              "description": "The address of the seller's payment wallet owning (some of) the UTXOs to be listed.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sellerPaymentPublicKey": {
+              "description": "The public key of the seller's payment wallet owning (some of) the UTXOs to be listed.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sellerSignature": {
+              "description": "The sell message in base64 for the given utxo. The message must be signed by the seller. You can get the message to be signed from the endpoint GET /psbt/listing.",
+              "type": "string",
+              "format": "base64"
+            },
+            "listings": {
+              "type": "array",
+              "description": "Information about each utxo that is going to be listed. The price and sellerReceiveAddress can be specified differently for each utxo.",
+              "items": {
+                "$ref": "#/components/schemas/ListingItemSellInfo"
+              }
+            }
+          }
+        },
+        "NewListingResponse": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The unique identifier for a listing.",
+              "format": "uuid"
+            },
+            "utxo": {
+              "type": "string",
+              "description": "The utxo that is listed. Can be considered unique.",
+              "format": "txid:vout",
+              "example": "b224d522dc25ba984f774498dda6808a97e380abf4bf8e0ac39a51a0b5d91e10:0"
+            },
+            "utxoValue": {
+              "type": "string",
+              "description": "The value of an utxo is the number of satoshis contained by the utxo, and the value used in tx if you don't take in consideration the special satoshis.",
+              "format": "int64"
+            },
+            "sellerAddress": {
+              "type": "string",
+              "description": "The address that owns the utxo and created the listing."
+            },
+            "sellerReceiveAddress": {
+              "type": "string",
+              "description": "The address in which the listing's price will be sent to when the listings is bought."
+            },
+            "type": {
+              "type": "string",
+              "description": "Type of listing that specify who created it.",
+              "enum": [
+                "OWNER",
+                "OFFER",
+                "RBF"
+              ]
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "UNDECORATED",
+                "PENDING_DECORATION",
+                "DECORATED"
+              ],
+              "description": "Marks the status of a given listing. The listing can be shown to other users to be bought only when it is \"DECORATED\" state, which marks the moment when all special sats of the listings were discovered."
+            },
+            "buyerTxId": {
+              "type": "string",
+              "description": "The bitcoin transaction id in which the listings was sold."
+            },
+            "price": {
+              "type": "string",
+              "description": "Value in satoshis. The price at which the listings is being sold.",
+              "format": "int64"
+            },
+            "utxoSize": {
+              "type": "string",
+              "description": "The value of an utxo is the number of satoshis contained by the utxo, and the value used in tx if you don't take in consideration the special satoshis.",
+              "format": "int64"
+            },
+            "mainTagId": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The main tag of a listing represents the most valuable tag of the listing given by the main satoshi."
+            },
+            "lowestSatIndex": {
+              "type": "string",
+              "description": "The lowest sat from the first sat range in the utxo.",
+              "format": "int64"
+            },
+            "lowestSatBlockNumber": {
+              "type": "number",
+              "description": "The block number in which the lowest sat was created.",
+              "format": "int32"
+            },
+            "lowestSatBlockTimestamp": {
+              "type": "string",
+              "description": "The block timestamp when the lowest sat was created.",
+              "format": "date-time"
+            },
+            "relativeUnitPrice": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The relative unit price is computed using the formula (price - utxoSize) / countOfMainSatoshis.",
+              "format": "int64"
+            },
+            "createdAt": {
+              "type": "string",
+              "description": "The time at which the listing was created by the seller.",
+              "format": "date-time"
+            },
+            "updatedAt": {
+              "type": "string",
+              "description": "The time at which the listing was updated by the seller.",
+              "format": "date-time"
+            },
+            "deletedAt": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The time at which the listing was deleted by the seller."
+            },
+            "purchasedAt": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The time at which the listing was bought."
+            }
+          }
+        },
+        "NewBulkListingResponse": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/NewListingResponse"
+          }
+        },
+        "DeleteListingResponse": {
+          "required": [
+            "deleted"
+          ],
+          "type": "object",
+          "properties": {
+            "deleted": {
+              "type": "boolean",
+              "description": "Flag if the listing was deleted."
+            }
+          }
+        },
+        "ErrorResponse": {
+          "required": [
+            "message"
+          ],
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string",
+              "description": "The reason why the request failed."
+            }
+          }
+        },
+        "ListingItemSellInfo": {
+          "required": [
+            "utxo",
+            "price",
+            "sellerReceiveAddress"
+          ],
+          "type": "object",
+          "properties": {
+            "utxo": {
+              "description": "The utxo that is going to be listed by the user. The utxo must be owned by the sellerAddress.",
+              "type": "string",
+              "format": "txid:vout",
+              "example": "b224d522dc25ba984f774498dda6808a97e380abf4bf8e0ac39a51a0b5d91e10:0"
+            },
+            "price": {
+              "description": "The value in satoshis as payment for the utxo requested by the user. Must be at least 546 sats and smaller than 2000000000000000 sats. Also, the price cannot be lower than the utxo base value.",
+              "type": "string",
+              "format": "int64"
+            },
+            "sellerReceiveAddress": {
+              "description": "The address where to send the price requested for the listing. Can be the same as the sellerAddress if the user wants to receive the payment for the listing on the same wallet. The user can also set a different address, other than the one used to made the listing, to receive the payment. The receive address is specified for the above utxo given",
+              "type": "string"
+            }
+          }
+        },
+        "PsbtBulkListingsArgs": {
+          "required": [
+            "sellerAddress",
+            "sellerPublicKey",
+            "listings"
+          ],
+          "type": "object",
+          "properties": {
+            "sellerAddress": {
+              "description": "The address of the seller's ordinals wallet owning (some of) the UTXOs to be listed.",
+              "type": "string"
+            },
+            "sellerPublicKey": {
+              "description": "The public key of the seller's ordinals wallet owning (some of) the UTXOs to be listed.",
+              "type": "string"
+            },
+            "sellerPaymentAddress": {
+              "description": "The address of the seller's payment wallet owning (some of) the UTXOs to be listed.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sellerPaymentPublicKey": {
+              "description": "The public key of the seller's payment wallet owning (some of) the UTXOs to be listed.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "listings": {
+              "type": "array",
+              "description": "Information about each utxo that is going to be listed. The price and sellerReceiveAddress can be specified differently for each utxo.",
+              "items": {
+                "$ref": "#/components/schemas/ListingItemSellInfo"
+              }
+            }
+          }
+        },
+        "ListingItemBuyInfo": {
+          "required": [
+            "listingId",
+            "receiveAddress"
+          ],
+          "type": "object",
+          "properties": {
+            "listingId": {
+              "description": "Listing id of the utxo to buy.",
+              "type": "string"
+            },
+            "receiveAddress": {
+              "description": "The address where to send the utxo bought. Can be the same as the buyerAddress if the users wants to send the utxo bought to the address with which he makes the payment. The user can also set a different address, other than the pay address, to send the utxo bought.",
+              "type": "string"
+            },
+            "replace": {
+              "description": "If the buying tx of the listing can be replaced with another one.",
+              "type": "boolean"
+            }
+          }
+        },
+        "PsbtBuyingBulkArgs": {
+          "required": [
+            "listings",
+            "buyerAddress",
+            "buyerPublicKey",
+            "feeRateTier",
+            "feeRate"
+          ],
+          "type": "object",
+          "properties": {
+            "listings": {
+              "type": "array",
+              "description": "Information about each listings that is going to be bought, where to send each utxo bought.",
+              "items": {
+                "$ref": "#/components/schemas/ListingItemBuyInfo"
+              }
+            },
+            "buyerAddress": {
+              "description": "The buyer wallet's address used for paying.",
+              "type": "string"
+            },
+            "buyerPublicKey": {
+              "description": "The buyer wallet's public key from the address used for paying.",
+              "type": "string"
+            },
+            "feeRateTier": {
+              "$ref": "#/components/schemas/FeeRateTier"
+            },
+            "feeRate": {
+              "description": "Rate fee chosen by user for the buy transaction. Value in sats. Either feeRate or feeRateTier should be sent, but not both of them.",
+              "type": "number",
+              "format": "int64"
+            },
+            "optimizationLevel": {
+              "description": "Configure the optimization of the transaction and the prepared created. Values between 0 for no optimization, and 1 to optimize. When setting optimization level 1 the receiveAddress for each address from the listings must be the same.",
+              "type": "number",
+              "format": "int32",
+              "default": 0,
+              "enum": [
+                0,
+                1
+              ]
+            },
+            "receiveAddress": {
+              "type": "string",
+              "description": "If the optimization level is set to 1, this key is required and needs to be set on all listings from the request."
+            },
+            "overrideDisableSpendables": {
+              "type": "boolean",
+              "default": false,
+              "description": "Optional, default set to false if not sent. If set to true, the endpoint will not use the spendables from the user's wallet to create the prepared message. [View more](#tag/Models/What-are-Spendables-UTXOs)"
+            }
+          }
+        },
+        "PsbtOfferCreateSingleArg": {
+          "type": "object",
+          "required": [
+            "utxo",
+            "makerAddress",
+            "makerPublicKey",
+            "makerReceiveAddress",
+            "price",
+            "paymentUtxos",
+            "feeRateTier"
+          ],
+          "properties": {
+            "utxo": {
+              "type": "string",
+              "description": "The utxo that the user wants to buy and make the offer to the owner.",
+              "format": "txid:vout"
+            },
+            "makerAddress": {
+              "type": "string",
+              "description": "The address of the user that wants to buy the utxo."
+            },
+            "makerPublicKey": {
+              "type": "string",
+              "description": "The public key of the user that wants to buy the utxo."
+            },
+            "makerReceiveAddress": {
+              "type": "string",
+              "description": "The address where to send the utxo bought."
+            },
+            "price": {
+              "type": "number",
+              "description": "The value in satoshis as payment for the utxo requested by the user."
+            },
+            "paymentUtxos": {
+              "type": "array",
+              "description": "List of utxos used to pay the transaction.",
+              "items": {
+                "type": "string",
+                "format": "txid:vout"
+              }
+            },
+            "feeRateTier": {
+              "$ref": "#/components/schemas/FeeRateTier"
+            },
+            "feeRate": {
+              "description": "Rate fee chosen by user for the buy transaction. Value in sats. Either feeRate or feeRateTier should be sent, but not both of them.",
+              "type": "number",
+              "format": "int64"
+            }
+          }
+        },
+        "PsbtOfferCreateArgs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/PsbtOfferCreateSingleArg"
+          }
+        },
+        "PsbtSingleOfferCreateResponse": {
+          "type": "object",
+          "properties": {
+            "psbtToBase64": {
+              "type": "string",
+              "description": "Prepared message encoded in base64 for buyer to sign.",
+              "format": "base64"
+            },
+            "listingId": {
+              "type": "string",
+              "description": "The unique identifier for the listing made after the offer.",
+              "format": "uuid"
+            }
+          }
+        },
+        "PsbtOfferCreateResponse": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/PsbtSingleOfferCreateResponse"
+          }
+        },
+        "PsbtSingleOfferAcceptArgs": {
+          "type": "object",
+          "required": [
+            "offerId",
+            "takerAddress",
+            "takerPublicKey"
+          ],
+          "properties": {
+            "offerId": {
+              "type": "string",
+              "description": "The unique identifier for the offer.",
+              "format": "uuid"
+            },
+            "takerAddress": {
+              "type": "string",
+              "description": "The address of the user who owns the utxo and accepts the offer."
+            },
+            "takerPublicKey": {
+              "type": "string",
+              "description": "The public key of the user who owns the utxo and accepts the offer."
+            }
+          }
+        },
+        "PsbtOfferAcceptArgs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/PsbtSingleOfferAcceptArgs"
+          }
+        },
+        "PsbtSingleOfferAcceptResponse": {
+          "type": "object",
+          "properties": {
+            "psbtToBase64": {
+              "type": "string",
+              "description": "Prepared message encoded in base64 for seller to sign.",
+              "format": "base64"
+            },
+            "offerId": {
+              "type": "string",
+              "description": "The unique identifier for the offer.",
+              "format": "uuid"
+            }
+          }
+        },
+        "PsbtOfferAcceptResponse": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/PsbtSingleOfferAcceptResponse"
+          }
+        },
+        "SingleOfferCreateArgs": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/PsbtOfferCreateSingleArg"
+            },
+            {
+              "type": "object",
+              "required": [
+                "makerSignature",
+                "duration"
+              ],
+              "properties": {
+                "makerSignature": {
+                  "type": "string",
+                  "description": "The signed message of the user from `/psbt/offer/create`"
+                },
+                "duration": {
+                  "type": "string",
+                  "description": "The duration of the offer.",
+                  "format": "date-time"
+                }
+              }
+            }
+          ]
+        },
+        "OfferCreateArgs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/SingleOfferCreateArgs"
+          }
+        },
+        "OfferPaymentUtxo": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The unique identifier for the offer payment associated with the offer.",
+              "format": "uuid"
+            },
+            "offerId": {
+              "type": "string",
+              "description": "The unique identifier for the offer.",
+              "format": "uuid"
+            },
+            "utxo": {
+              "type": "string",
+              "description": "The utxo that is used to pay the offer.",
+              "format": "txid:vout"
+            },
+            "isActive": {
+              "type": "boolean",
+              "description": "Flag if the offer payment is active."
+            }
+          }
+        },
+        "OfferResponse": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The unique identifier for the offer.",
+              "format": "uuid"
+            },
+            "utxo": {
+              "type": "string",
+              "description": "The utxo that the user wants to buy and make the offer to the owner.",
+              "format": "txid:vout"
+            },
+            "listingId": {
+              "type": "string",
+              "description": "The unique identifier for the listing made after the offer.",
+              "format": "uuid"
+            },
+            "status": {
+              "type": "string",
+              "description": "The status of the offer made.",
+              "enum": [
+                "NEW",
+                "PENDING_PURCHASE",
+                "MEMPOOL_CANCELED",
+                "MEMPOOL_FINALIZED",
+                "CANCELLED",
+                "FINALIZED",
+                "SPENT",
+                "PAYMENT_SPENT"
+              ]
+            },
+            "makerAddress": {
+              "type": "string",
+              "description": "The address of the user that wants to buy the utxo and made the offer."
+            },
+            "makerPublicKey": {
+              "type": "string",
+              "description": "The public key of the user that wants to buy the utxo and made the offer."
+            },
+            "makerReceiveAddress": {
+              "type": "string",
+              "description": "The address where to send the utxo bought."
+            },
+            "makerSignature": {
+              "type": "string",
+              "description": "Empty field."
+            },
+            "takerAddress": {
+              "type": "string",
+              "description": "The address of the user who owns the utxo and accepts the offer."
+            },
+            "takerPublicKey": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The public key of the user who owns the utxo and accepts the offer."
+            },
+            "takerReceiveAddress": {
+              "type": "string",
+              "description": "The address where to send the the payment for the offer."
+            },
+            "takerSignature": {
+              "type": "string",
+              "description": "Empty field."
+            },
+            "txId": {
+              "type": "string",
+              "description": "The bitcoin transaction id in which the offer was accepted."
+            },
+            "price": {
+              "type": "string",
+              "description": "Value in satoshis. The price at which the offer is being accepted."
+            },
+            "makerFee": {
+              "type": "string",
+              "description": "The fee taken from the maker for this transaction.",
+              "format": "int64"
+            },
+            "takerFee": {
+              "type": "string",
+              "description": "The fee taken from the taker for this transaction.",
+              "format": "int64"
+            },
+            "networkFee": {
+              "type": "string",
+              "description": "The network fee taken for this transaction.",
+              "format": "int64"
+            },
+            "duration": {
+              "type": "string",
+              "description": "The duration of the offer.",
+              "format": "date-time"
+            },
+            "createdAt": {
+              "type": "string",
+              "description": "The time at which the offer was created by the maker.",
+              "format": "date-time"
+            },
+            "updatedAt": {
+              "type": "string",
+              "description": "The time at which the offer was updated by the maker.",
+              "format": "date-time"
+            },
+            "deletedAt": {
+              "type": "string",
+              "description": "The time at which the offer was deleted by the maker.",
+              "format": "date-time"
+            }
+          }
+        },
+        "SingleOfferCreateResponse": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/OfferResponse"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "offerPaymentUtxos": {
+                  "type": "array",
+                  "description": "List of offer payment utxos associated with the offer.",
+                  "items": {
+                    "$ref": "#/components/schemas/OfferPaymentUtxo"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "OfferCreateResponse": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/SingleOfferCreateResponse"
+          }
+        },
+        "SingleOfferAcceptArgs": {
+          "type": "object",
+          "required": [
+            "offerId",
+            "takerAddress",
+            "takerPublicKey",
+            "takerSignature"
+          ],
+          "properties": {
+            "offerId": {
+              "type": "string",
+              "description": "The unique identifier for the offer.",
+              "format": "uuid"
+            },
+            "takerAddress": {
+              "type": "string",
+              "description": "The address of the user who owns the utxo and accepts the offer."
+            },
+            "takerPublicKey": {
+              "type": "string",
+              "description": "The public key of the user who owns the utxo and accepts the offer."
+            },
+            "takerSignature": {
+              "type": "string",
+              "description": "The signed message of the user from `/psbt/offer/accept`"
+            }
+          }
+        },
+        "OfferAcceptArgs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/SingleOfferAcceptArgs"
+          }
+        },
+        "SingleOfferAcceptResponse": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/OfferResponse"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "buyingId": {
+                  "type": "string",
+                  "description": "The unique identifier for the buying.",
+                  "format": "uuid"
+                }
+              }
+            }
+          ]
+        },
+        "OfferAcceptResponse": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/SingleOfferAcceptResponse"
+          }
+        },
+        "OfferListArgs": {
+          "type": "object",
+          "required": [
+            "utxo",
+            "makerAddress",
+            "offset",
+            "limit"
+          ],
+          "properties": {
+            "utxo": {
+              "type": "string",
+              "description": "The utxo that the user wants to buy and make the offer to the owner.",
+              "format": "txid:vout"
+            },
+            "makerAddress": {
+              "type": "string",
+              "description": "The address of the user that wants to buy the utxo and made the offer."
+            },
+            "offset": {
+              "type": "number",
+              "description": "Start index to get offers. Used for pagination",
+              "format": "int64"
+            },
+            "limit": {
+              "type": "number",
+              "description": "Number of offers to get. Used for pagination. Maximum limit 50.",
+              "format": "int64"
+            },
+            "minPrice": {
+              "type": "string",
+              "description": "The minimum value in satoshis as payment for the utxo requested by the user.",
+              "format": "int64"
+            },
+            "maxPrice": {
+              "type": "string",
+              "description": "The maximum value in satoshis as payment for the utxo requested by the user.",
+              "format": "int64"
+            },
+            "minUpdatedAt": {
+              "type": "string",
+              "description": "The minimum date-time when the offer was updated.",
+              "format": "date-time"
+            },
+            "maxUpdatedAt": {
+              "type": "string",
+              "description": "The maximum date-time when the offer was updated.",
+              "format": "date-time"
+            },
+            "orderByColumnWithDirection": {
+              "type": "array",
+              "description": "Order the offers by the given column and direction.",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "PRICE_ASC",
+                  "PRICE_DESC",
+                  "UPDATED_AT_ASC",
+                  "UPDATED_AT_DESC"
+                ]
+              }
+            }
+          }
+        },
+        "OfferListResponse": {
+          "type": "object",
+          "properties": {
+            "results": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/SingleOfferCreateResponse"
+              }
+            },
+            "count": {
+              "type": "string",
+              "format": "int64"
+            }
+          }
+        },
+        "DeleteOfferArgs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "offerId": {
+                "type": "string",
+                "description": "The unique identifier for the offer to be deleted.",
+                "format": "uuid"
+              }
+            }
+          }
+        },
+        "DeleteOfferResponse": {
+          "type": "object",
+          "properties": {
+            "deleted": {
+              "type": "boolean",
+              "description": "Flag if the offers were deleted."
+            }
+          }
+        },
+        "PendingBuying": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The unique identifier for a buying.",
+              "format": "uuid"
+            },
+            "createdAt": {
+              "type": "string",
+              "description": "The time when the buying was created.",
+              "format": "date-time"
+            },
+            "txId": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The bitcoin transaction id for the buy."
+            },
+            "broadcastStatus": {
+              "type": "string",
+              "description": "The status of broadcasting the buying transaction to nodes.",
+              "enum": [
+                "PENDING",
+                "FAILED",
+                "SUCCESS"
+              ]
+            },
+            "listing": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Listing"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "buying": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ListingBuying"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "PendingTxBuying": {
+          "type": "object",
+          "properties": {
+            "<txId>": {
+              "description": "**The key represent the transaction id of the buying and will always be a string**. The values are the buyings made in the transaction.",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/PendingBuying"
+              }
+            }
+          }
+        },
+        "PendingBuyingsResponse": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/PendingTxBuying"
+              }
+            },
+            "count": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        "RbfListingsResponse": {
+          "type": "object",
+          "properties": {
+            "results": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/RbfListing"
+              }
+            },
+            "count": {
+              "type": "string",
+              "description": "The number of RBF listings for the given txId.",
+              "format": "int64"
+            },
+            "isPlatformTransaction": {
+              "type": "boolean",
+              "description": "Flag if the transaction is a platform transaction."
+            }
+          }
+        },
+        "TagFloorPriceHistoryResponse": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timestamp": {
+                "type": "string",
+                "description": "Time when the tag's floor price was recorded.",
+                "format": "date-time"
+              },
+              "floor": {
+                "type": "string",
+                "description": "The floor price for the tag at the given timestamp.",
+                "format": "int64"
+              }
+            }
+          }
+        },
+        "RuneFloorPriceHistoryResponse": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timestamp": {
+                "type": "string",
+                "description": "Time when the rune's floor price was recorded.",
+                "format": "date-time"
+              },
+              "floor": {
+                "type": "string",
+                "description": "The floor price for the rune at the given timestamp. Price per coin saved as decimal."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
