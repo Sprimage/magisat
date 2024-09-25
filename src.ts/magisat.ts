@@ -77,7 +77,6 @@ export class Magisat {
     }
   }
 
-  // Tags
   async getTags(params?: { isCategory?: string; beforeTime?: string; includeIsVirtual?: string }): Promise<TagsResponse> {
     return this.request<TagsResponse>({ method: "GET", url: "/external/v1/tag", params });
   }
@@ -90,7 +89,7 @@ export class Magisat {
     });
   }
 
-  async getTagIdBySlug(slug: string): Promise<TagIdInfo> {
+  async getTagIdBySlug({slug}:{slug: string}): Promise<TagIdInfo> {
     return this.request<TagIdInfo>({ method: "GET", url: `/external/v1/tag/${slug}` });
   }
 
@@ -131,7 +130,6 @@ export class Magisat {
     return this.request<DeleteListingResponse>({ method: "DELETE", url: `/external/v1/listing/${listingId}` });
   }
 
-  // Buying
   async getPreparedMessageForBuying(params: {
     buyerAddress: string;
     buyerPublicKey: string;
@@ -167,7 +165,6 @@ export class Magisat {
     return this.request<PendingBuyingsResponse>({ method: "GET", url: `/external/v1/buying/pending/${address}` });
   }
 
-  // Offer
   async postPsbtOfferCreateMessage(data: PsbtOfferCreateArgs): Promise<PsbtOfferCreateResponse> {
     return this.request<PsbtOfferCreateResponse>({ method: "POST", url: "/external/v1/psbt/offer/create", data });
   }

@@ -9,9 +9,9 @@
     "prettier": "prettier --write ./src.ts/**/*.ts"
   },
   "bin": {
-    "Magisat": "./bin/cli.js"
+    "magisat": "./bin/cli.js"
   },
-  "author": "sprimage",
+  "author": "Oyl",
   "license": "MIT",
   "private": false,
   "devDependencies": {
@@ -21,6 +21,7 @@
   "dependencies": {
     "axios": "^1.7.7",
     "change-case": "^4.1.2",
+    "dotenv": "^16.4.5",
     "fs-extra": "^11.1.1",
     "node-fetch": "2.6.1",
     "npm": "^9.6.7",

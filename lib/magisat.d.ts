@@ -16,7 +16,9 @@ export declare class Magisat {
         includeIsVirtual?: string;
     }): Promise<TagsResponse>;
     getTagFloorPriceHistory(tagId: string, offset: number, limit: number, timeOrder: "ASC" | "DESC"): Promise<TagFloorPriceHistoryResponse[]>;
-    getTagIdBySlug(slug: string): Promise<TagIdInfo>;
+    getTagIdBySlug({ slug }: {
+        slug: string;
+    }): Promise<TagIdInfo>;
     getCollections(params: {
         offset: number;
         limit: number;

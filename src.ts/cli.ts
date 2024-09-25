@@ -1,9 +1,10 @@
 import yargs from "yargs";
 import { camelCase } from "change-case";
+import { Market } from "./market";
 import { Magisat } from "./magisat";
 
 export async function callAPI(command, data, options = {}) {
-  const client = new Magisat();
+  const client = new Market();
 
   const camelCommand = camelCase(command);
   console.log(`${camelCommand}(${data})`);
@@ -13,13 +14,14 @@ export async function callAPI(command, data, options = {}) {
   return result;
 }
 
+
 export async function runCLI() {
   const [command] = yargs.argv._;
   const options = Object.assign({}, yargs.argv);
   delete options._;
   switch (command) {
     default:
-      return await callAPI(yargs.argv._[0], yargs.argv._[1], options);
+      return await callAPI(yargs.argv._[0], options);
       break;
   }
 }

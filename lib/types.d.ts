@@ -26,6 +26,7 @@ export interface TagIdInfo {
 export interface GetListingsArgs {
     offset: number;
     limit: number;
+    tagId?: string;
     tagIds?: string[];
     utxos?: string[];
     minPrice?: string;
@@ -41,6 +42,7 @@ export interface ListingsResponse {
 export interface Listing {
     id: string;
     utxo: string;
+    status: "DECORATED" | "PENDING_PURCHASE";
     price: string;
     sellerAddress: string;
     sellerPublicKey: string;
